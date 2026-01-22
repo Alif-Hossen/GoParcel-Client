@@ -6,6 +6,7 @@ import WeHelped from '../Wehelped/Wehelped';
 import ThreeService from '../ThreeService/ThreeService';
 import Merchant_Customer from '../Merchant&Customer/Merchant_Customer';
 import CustomerSay from '../CustomerSay/CustomerSay';
+import FrequentlyAskQuestion from '../FrequentlyAskedQuestion/FrequentlyAskQuestion';
 
 const Home = () => {
     return (
@@ -17,6 +18,7 @@ const Home = () => {
             <ThreeService></ThreeService>
             <Merchant_Customer></Merchant_Customer>
             <CustomerSay></CustomerSay>
+            <FrequentlyAskQuestion></FrequentlyAskQuestion>
         </div>
     );
 };
