@@ -4,6 +4,7 @@ import HowItWork from '../HowItWork/HowItWork';
 import OurServices from '../OurServices/OurServices';
 import WeHelped from '../Wehelped/Wehelped';
 import ThreeService from '../ThreeService/ThreeService';
+import Merchant_Customer from '../Merchant&Customer/Merchant_Customer';
 
 const Home = () => {
     return (
@@ -13,6 +14,7 @@ const Home = () => {
             <OurServices></OurServices>
             <WeHelped></WeHelped>
             <ThreeService></ThreeService>
+            <Merchant_Customer></Merchant_Customer>
         </div>
     );
 };
