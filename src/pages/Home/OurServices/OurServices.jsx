@@ -11,10 +11,10 @@ const OurServices = () => {
         <div className='bg-secondary rounded-2xl p-12'>
             <div className='text-white text-center py-6'>
                 <h1 className="text-4xl font-bold">
-                    How It Works
+                    Our Services
                 </h1>
-                <p className="text-lg ">
-                    Enjoy fast, reliable parcel delivery with real-time tracking and zero hassle. From personal packages to
+                <p className="text-l py-4 text center ">
+                    Enjoy fast, reliable parcel delivery with real-time tracking and zero hassle. From personal packages to <br /> business shipments — we deliver on time, every time.
                 </p>
             </div>
 
