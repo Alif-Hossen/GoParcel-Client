@@ -36,6 +36,22 @@ body{
 }
 
 
+.label-style {
+  @apply block text-sm font-medium text-gray-700 mb-1;
+}
+
+.input-style {
+  @apply w-full border border-gray-300 rounded-lg px-4 py-3
+  text-sm outline-none transition-all duration-300;
+}
+
+.input-style:hover {
+  @apply border-lime-400;
+}
+
+.input-style:focus {
+  @apply border-lime-500 ring-2 ring-lime-200;
+}
 
 
 
