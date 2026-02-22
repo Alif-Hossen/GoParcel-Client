@@ -5,6 +5,9 @@ import Coverage from "../pages/Coverage/Coverage";
 import AboutUs from "../pages/AboutUs/AboutUs";
 import BeARider from "../pages/BeARider/BeARider";
 import ErrorPage from "../pages/ErrorPage/ErrorPage";
+import AuthLayout from "../layouts/AuthLayout";
+import Login from "../pages/Auth/Login/Login";
+import Register from "../pages/Auth/register/register";
 
 export const router = createBrowserRouter([
     {
@@ -32,6 +35,20 @@ export const router = createBrowserRouter([
             }
         ]
     },
+    {
+        path: '/',
+        element: <AuthLayout></AuthLayout>,
+        children : [
+            {
+                path: 'login',
+                element: <Login></Login>
+            },
+            {
+                path: 'register',
+                element: <Register></Register>
+            }
+        ]
+    }
 ]);
 
 
