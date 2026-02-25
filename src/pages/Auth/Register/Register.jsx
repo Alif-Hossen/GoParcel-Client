@@ -78,6 +78,7 @@ const Register = () => {
                 </fieldset>
                 
                 <p> Already Have An Account? <NavLink to="/login" className="text-blue-500 font-bold underline">Login</NavLink> </p>
+                
             </form>
             <SocialLogin></SocialLogin>
         </div>

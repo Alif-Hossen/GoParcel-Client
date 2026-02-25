@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import useAuth from '../../../hooks/useAuth';
 import { Link } from 'react';
 import { NavLink } from 'react-router';
+import SocialLogin from '../SocialLogin/SocialLogin';
 
 const Login = () => {
 
@@ -60,8 +61,13 @@ const Login = () => {
                     <div><a className="link link-hover">Forgot password?</a></div>
                     <button className="btn btn-neutral mt-4">Login</button>
                 </fieldset>
+                
                 <p> New To Go Parcel? <NavLink to="/register" className="text-blue-500 font-bold underline">register</NavLink> </p>
+                
             </form>
+
+            <SocialLogin></SocialLogin>
+
         </div>
     );
 };
