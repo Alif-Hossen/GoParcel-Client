@@ -51,6 +51,7 @@ const Navbar = () => {
                     <a onClick={handleLogOut} className="btn">Log Out </a> : 
                     <NavLink to="/login"  className="btn"> Log In </NavLink>
                 }
+                <NavLink to="/"  className="btn btn-primary text-black mx-4"> Be A Rider </NavLink>
             </div>
         </div>
     );
