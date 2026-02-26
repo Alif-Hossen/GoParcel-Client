@@ -2,20 +2,25 @@ import React from 'react';
 import { useForm } from 'react-hook-form';
 import useAuth from '../../../hooks/useAuth';
 import { Link } from 'react';
-import { NavLink } from 'react-router';
+import { NavLink, useLocation, useNavigate } from 'react-router';
 import SocialLogin from '../SocialLogin/SocialLogin';
 
 const Login = () => {
 
     const { register, handleSubmit, formState: { errors } } = useForm();
 
-    const { signInUser } = useAuth()
+    const { signInUser } = useAuth();
+    const location = useLocation();
+    const navigate = useNavigate();
+
+    // console.log( 'In The Login Page', location );
 
     const handleLogin = (data) => {
         console.log('Login Data', data);
         signInUser( data.email, data.password )
             .then( result => {
                 console.log( result.user );
+                navigate( location ?. state || '/' )
             })
             .catch( error => {
                 console.log( error );
@@ -62,8 +67,11 @@ const Login = () => {
                     <button className="btn btn-neutral mt-4">Login</button>
                 </fieldset>
                 
-                <p> New To Go Parcel? <NavLink to="/register" className="text-blue-500 font-bold underline">register</NavLink> </p>
-                
+                <p> New To Go Parcel? <NavLink
+                state = { location.state }
+                 to="/register" 
+                 className="text-blue-500 font-bold underline">register</NavLink> </p>
+
             </form>
 
             <SocialLogin></SocialLogin>
