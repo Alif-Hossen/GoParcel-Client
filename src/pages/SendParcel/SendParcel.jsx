@@ -2,10 +2,20 @@ import React from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { useLoaderData } from 'react-router';
 import Swal from 'sweetalert2';
+import useAxiosSecure from '../../hooks/useAxiosSecure';
+import useAuth from '../../hooks/useAuth';
 
 const SendParcel = () => {
 
-    const { register, handleSubmit, control,  } = useForm();
+    const { register,
+            handleSubmit, 
+            control,  
+        } = useForm();
+
+    const { user } = useAuth();
+
+    const axiosSecure = useAxiosSecure();
+
 
     const serviceCenters = useLoaderData();
     const regionsDuplicate = serviceCenters.map(c => c.region);
@@ -57,7 +67,11 @@ const SendParcel = () => {
         }).then((result) => {
             if (result.isConfirmed) {
 
-                
+                // SAVE THE PARCEL INFO TO THE DATABASE -->
+                axiosSecure.post('/parcels', data)
+                    .then( res => {
+                        console.log( 'After Saving Parcel: ', res.data );
+                    })
 
                 // Swal.fire({
                 //     title: "Deleted!",
@@ -121,12 +135,16 @@ const SendParcel = () => {
                         {/* SENDER NAME --> */}
                         <label className="label"> Sender Name </label>
 
-                        <input type="text" {...register('senderName')} className="input w-full" placeholder="Sender Name" />
+                        <input type="text" {...register('senderName')}
+                        defaultValue={user?.displayName}
+                         className="input w-full" placeholder="Sender Name" />
 
                         {/* SENDER EMAIL --> */}
                         <label className="label"> Sender Email </label>
 
-                        <input type="text" {...register('senderEmail', { required: true })} className="input w-full" placeholder="Sender Email" />
+                        <input type="text" {...register('senderEmail', { required: true })}
+                        defaultValue={user?.email}
+                        className="input w-full" placeholder="Sender Email" />
 
                         {/* {
                             errors.senderEmail?.type === 'required' &&
