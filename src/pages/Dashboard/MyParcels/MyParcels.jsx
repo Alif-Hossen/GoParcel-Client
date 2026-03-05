@@ -67,7 +67,7 @@ const MyParcels = () => {
         const res = await axiosSecure.post('/payment-checkout-session', paymentInfo);
 
         console.log( res.data.url ) ;
-        window.location.href = res.data.url;
+        window.location.assign(res.data.url);
     }
 
     return (
@@ -96,7 +96,7 @@ const MyParcels = () => {
                                 <td>
                                     {
                                         parcel.paymentStatus === 'paid' ?
-                                            <span className='text-green-500'>
+                                            <span className='text-green-500 font-bold '>
                                                 Paid
                                             </span>
                                             :
