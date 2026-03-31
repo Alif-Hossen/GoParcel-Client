@@ -1,28 +1,48 @@
 import React, { useEffect, useState } from "react";
 import Logo from "../../../components/Logo/Logo";
-import { NavLink, useNavigate, Link } from "react-router-dom"; // Link যুক্ত করা হয়েছে
+import { NavLink, useNavigate, Link } from "react-router-dom";
 import useAuth from "../../../hooks/useAuth";
 import { io } from "socket.io-client";
 import { FaBell } from "react-icons/fa";
 import { toast } from "react-hot-toast";
-// import useAdmin from "../../../hooks/useAdmin"; // আপনার যদি এই হুকটি থাকে
+import useRole from "../../../hooks/useRole";
+import { useQuery } from "@tanstack/react-query";
+import useAxiosSecure from "../../../hooks/useAxiosSecure";
 
+// Socket connection
 const socket = io("http://localhost:3000");
 
 const Navbar = () => {
-  const [notifications, setNotifications] = useState([]);
-  const { user, logOut } = useAuth();
-  // const [isAdmin] = useAdmin(); // ডাটাবেস থেকে isAdmin চেক করার জন্য
-  const isAdmin = true; // টেস্টিং এর জন্য আপাতত true রাখা হলো
+  const { user, logOut, loading: authLoading } = useAuth();
+  const [userRole, isRoleLoading] = useRole();
+  const axiosSecure = useAxiosSecure();
   const navigate = useNavigate();
+
+  // ১. ডাটাবেস থেকে পুরনো নোটিফিকেশন লোড করা
+  const { data: dbNotifications = [], refetch } = useQuery({
+    queryKey: ["notifications", user?.email],
+    enabled: !!user?.email, // ইউজার ইমেইল থাকলেই কেবল কোয়েরি চলবে
+    queryFn: async () => {
+      const res = await axiosSecure.get(`/notifications/${user?.email}`);
+      return res.data;
+    },
+  });
+
+  // ২. রিয়েল-টাইম নোটিফিকেশনের জন্য লোকাল স্টেট
+  const [liveNotifications, setLiveNotifications] = useState([]);
 
   useEffect(() => {
     if (user?.email) {
       socket.emit("join", user.email);
 
       const handleNotification = (data) => {
-        setNotifications((prev) => [data, ...prev]);
-        toast.success(data.message);
+        // নতুন নোটিফিকেশন আসলে স্টেটে যোগ হবে এবং টোস্ট দেখাবে
+        setLiveNotifications((prev) => [data, ...prev]);
+        toast.success(data.message, {
+          duration: 4000,
+          position: "top-center",
+        });
+        refetch(); // ডাটাবেস থেকেও নতুন ডাটা সিঙ্ক করে নেবে
       };
 
       socket.on("notification", handleNotification);
@@ -31,14 +51,17 @@ const Navbar = () => {
         socket.off("notification", handleNotification);
       };
     }
-  }, [user]);
+  }, [user, refetch]);
+
+  // ৩. দুই ধরণের নোটিফিকেশন একসাথে মার্জ করা (DB + Live)
+  const allNotifications = [...liveNotifications, ...dbNotifications];
 
   const handleLogOut = () => {
     logOut()
       .then(() => navigate("/"))
       .catch((error) => console.log(error));
   };
-
+  console.log("All Notifications:", allNotifications);
   const links = (
     <>
       <li>
@@ -48,35 +71,45 @@ const Navbar = () => {
         <NavLink to="/coverage">Coverage</NavLink>
       </li>
       <li>
-        <NavLink to="/send_parcel">Send parcel</NavLink>
-      </li>
-      <li>
         <NavLink to="/aboutUs">About Us</NavLink>
       </li>
-      <li>
-        <NavLink to="/rider">Be a Rider</NavLink>
-      </li>
-      {user && (
-        <li>
-          <NavLink to="/dashboard/my-parcels">My parcel</NavLink>
-        </li>
-      )}
-      {/* অ্যাডমিন ড্যাশবোর্ড লিংক */}
-      {user && isAdmin && (
-        <li>
-          <NavLink
-            to="/dashboard/admin-home"
-            className="text-primary font-bold"
-          >
-            Admin Dashboard
-          </NavLink>
-        </li>
+
+      {!isRoleLoading && !authLoading && (
+        <>
+          {userRole === "user" && (
+            <>
+              <li>
+                <NavLink to="/send_parcel">Send parcel</NavLink>
+              </li>
+              <li>
+                <NavLink to="/rider">Be a Rider</NavLink>
+              </li>
+              {user && (
+                <li>
+                  <NavLink to="/dashboard/my-parcels">My parcel</NavLink>
+                </li>
+              )}
+            </>
+          )}
+
+          {userRole === "admin" && (
+            <li>
+              <NavLink
+                to="/dashboard/admin-home"
+                className="text-primary font-bold"
+              >
+                Admin Dashboard
+              </NavLink>
+            </li>
+          )}
+        </>
       )}
     </>
   );
 
   return (
     <div className="navbar bg-base-100 shadow-sm border-2 mt-4 rounded-2xl px-4 flex justify-between items-center">
+      {/* Mobile Menu */}
       <div className="navbar-start w-auto">
         <div className="dropdown">
           <div tabIndex={0} role="button" className="btn btn-ghost lg:hidden">
@@ -97,7 +130,7 @@ const Navbar = () => {
           </div>
           <ul
             tabIndex={0}
-            className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow"
+            className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[50] mt-3 w-52 p-2 shadow"
           >
             {links}
           </ul>
@@ -107,40 +140,46 @@ const Navbar = () => {
         </Link>
       </div>
 
+      {/* Desktop Menu */}
       <div className="navbar-center hidden lg:flex">
         <ul className="menu menu-horizontal px-1 gap-2">{links}</ul>
       </div>
 
+      {/* Profile & Notification Section */}
       <div className="navbar-end w-auto gap-3 flex items-center">
         {user ? (
           <div className="flex items-center gap-4">
+            {/* Notification Dropdown */}
             <div className="dropdown dropdown-end">
               <label tabIndex={0} className="btn btn-ghost btn-circle">
                 <div className="indicator">
                   <FaBell className="h-5 w-5 text-gray-600" />
-                  {notifications.length > 0 && (
+                  {allNotifications.length > 0 && (
                     <span className="badge badge-sm badge-primary indicator-item">
-                      {notifications.length}
+                      {allNotifications.length}
                     </span>
                   )}
                 </div>
               </label>
               <ul
                 tabIndex={0}
-                className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-64 max-h-80 overflow-y-auto border"
+                className="menu menu-sm dropdown-content mt-3 z-[1000] p-2 shadow bg-base-100 rounded-box w-64 max-h-80 overflow-y-auto border right-0"
               >
-                <li className="menu-title font-bold text-gray-700">
+                <li className="menu-title font-bold text-gray-700 text-lg">
                   Notifications
                 </li>
                 <div className="divider my-0"></div>
-                {notifications.length === 0 ? (
+                {allNotifications.length === 0 ? (
                   <li className="p-4 text-center text-gray-400">
                     No new updates
                   </li>
                 ) : (
-                  notifications.map((n, i) => (
-                    <li key={i} className="border-b last:border-0">
-                      <p className="py-3 px-4 text-xs leading-relaxed">
+                  allNotifications.map((n, i) => (
+                    <li
+                      key={i}
+                      className="border-b last:border-0 hover:bg-gray-50"
+                    >
+                      <p className="py-3 px-4 text-xs leading-relaxed font-medium text-black">
                         {n.message}
                       </p>
                     </li>
@@ -149,6 +188,7 @@ const Navbar = () => {
               </ul>
             </div>
 
+            {/* Logout & Profile */}
             <button
               onClick={handleLogOut}
               className="btn btn-sm btn-error btn-outline hidden md:flex"

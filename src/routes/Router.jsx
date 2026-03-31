@@ -26,6 +26,7 @@ import AllUsers from "../pages/Admin/AllUsers";
 import AllParcels from "../pages/Admin/AllParcels";
 import MyDeliveries from "../pages/Rider/MyDeliveries";
 import MyReviews from "../pages/Rider/MyReviews";
+import AdminRoute from "./AdminRoute";
 
 export const router = createBrowserRouter([
   {
@@ -127,6 +128,22 @@ export const router = createBrowserRouter([
       {
         path: "my-reviews",
         element: <MyReviews />,
+      },
+      {
+        path: "all-users",
+        element: (
+          <AdminRoute>
+            <AllUsers />
+          </AdminRoute>
+        ),
+      },
+      {
+        path: "all-parcels",
+        element: (
+          <AdminRoute>
+            <AllParcels />
+          </AdminRoute>
+        ),
       },
     ],
   },

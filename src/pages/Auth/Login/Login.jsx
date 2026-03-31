@@ -1,9 +1,8 @@
-import React from "react";
 import { useForm } from "react-hook-form";
 import useAuth from "../../../hooks/useAuth";
-import { Link } from "react";
-import { NavLink, useLocation, useNavigate } from "react-router";
+import { NavLink, useLocation, useNavigate, Link } from "react-router";
 import SocialLogin from "../SocialLogin/SocialLogin";
+import axios from "axios";
 
 const Login = () => {
   const {
@@ -15,28 +14,47 @@ const Login = () => {
   const { signInUser } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
-
-  // console.log( 'In The Login Page', location );
-
-  //   const handleLogin = (data) => {
-  //     console.log("Login Data", data);
-  //     signInUser(data.email, data.password)
-  //       .then((result) => {
-  //         console.log(result.user);
-  //         navigate(location?.state || "/");
-  //       })
-  //       .catch((error) => {
-  //         console.log(error);
-  //       });
-  //   };
+  const from = location.state?.from?.pathname || "/";
 
   // Login.jsx এর ভেতর
+
   const handleLogin = (data) => {
-    signInUser(data.email, data.password).then((result) => {
-      console.log(result.user);
-      // সরাসরি ড্যাশবোর্ডের ভেতরে কোনো একটি পেইজে পাঠান
-      navigate("/dashboard/my-parcels", { replace: true });
-    });
+    signInUser(data.email, data.password)
+      .then((result) => {
+        const user = result.user;
+
+        // ১. প্রথমে সার্ভার থেকে JWT টোকেন নিয়ে আসা
+        const userInfo = {
+          name: user?.displayName || "Anonymous",
+          email: user?.email,
+          role: "user", // ডিফল্ট রোল
+        };
+
+        // ২. টোকেন পাওয়ার জন্য /jwt এপিআই কল করা
+        axios
+          .post("http://localhost:3000/jwt", { email: user?.email })
+          .then((res) => {
+            if (res.data.token) {
+              // **টোকেনটি সেভ করা হচ্ছে**
+              localStorage.setItem("access-token", res.data.token);
+
+              // ৩. টোকেন সেভ হওয়ার পর ইউজারকে ডাটাবেসে সেভ করা (যদি না থাকে)
+              axios
+                .post("http://localhost:3000/users", userInfo)
+                .then((dbRes) => {
+                  console.log("User process complete", dbRes.data);
+
+                  // ৪. সবশেষে ড্যাশবোর্ডে পাঠানো
+                  // এখানে 'from' ভেরিয়েবলটি ব্যবহার করা ভালো
+                  navigate(from, { replace: true });
+                });
+            }
+          });
+      })
+      .catch((error) => {
+        console.error("Login Error:", error.message);
+        // এখানে ইউজারকে একটি এরর মেসেজ (যেমন: Swal বা Toast) দেখাতে পারেন
+      });
   };
 
   return (

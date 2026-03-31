@@ -88,6 +88,7 @@ const MyParcels = () => {
               <th>#</th>
               <th>Parcel Name</th>
               <th>Cost</th>
+              <th>Delivery Date</th>
               <th>Status</th>
               <th>Payment</th>
               <th>Actions</th>
@@ -99,6 +100,16 @@ const MyParcels = () => {
                 <th>{index + 1}</th>
                 <td>{parcel.parcelName}</td>
                 <td>{parcel.cost} TK</td>
+
+                <td>
+                  {parcel.deliveryDate ? (
+                    <span className="font-bold text-green-600">
+                      {new Date(parcel.deliveryDate).toLocaleDateString()}
+                    </span>
+                  ) : (
+                    <span className="text-red-500 font-semibold">N/A</span>
+                  )}
+                </td>
 
                 {/* Delivery Status */}
                 <td>
