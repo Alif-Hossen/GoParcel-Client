@@ -39,7 +39,6 @@ const Register = () => {
 
 
                         // CREATE USER IN THE DATABASE -->
-
                         const userInfo = {
                             email: data.email,
                             displayName: data.name,
@@ -52,6 +51,7 @@ const Register = () => {
                                     console.log("User Created In The Database..");
                                 }
                             })
+
 
                         // Update User Profile To Firebase -->
                         const userProfile = {

@@ -27,11 +27,13 @@ export const router = createBrowserRouter([
             {
                 index: true,
                 element: <Home></Home>,
-                
+
             },
             {
                 path: '/rider',
-                element: <PrivateRoute> <Rider></Rider> </PrivateRoute>
+                element: <PrivateRoute> <Rider></Rider> </PrivateRoute>,
+                loader: () => fetch('/serviceCenter.json').then(res => res.json())
+
             },
             {
                 path: "coverage",
@@ -39,13 +41,13 @@ export const router = createBrowserRouter([
                 loader: () => fetch('/serviceCenter.json').then(res => res.json())
             },
             {
-                path:"aboutUs",
+                path: "aboutUs",
                 element: <AboutUs></AboutUs>
             },
-            {
-                path: "rider",
-                element: <BeARider></BeARider>
-            },
+            // {
+            //     path: "rider",
+            //     element: <BeARider></BeARider>
+            // },
             {
                 path: 'send_parcel',
                 element: <PrivateRoute>  <SendParcel></SendParcel>  </PrivateRoute>,
@@ -56,7 +58,7 @@ export const router = createBrowserRouter([
     {
         path: '/',
         element: <AuthLayout></AuthLayout>,
-        children : [
+        children: [
             {
                 path: 'login',
                 element: <Login></Login>
@@ -70,7 +72,7 @@ export const router = createBrowserRouter([
     {
         path: 'dashboard',
         element: <PrivateRoute> <DashboardLayout></DashboardLayout></PrivateRoute>,
-        children : [
+        children: [
             {
                 path: 'my-parcels',
                 element: <MyParcels></MyParcels>
@@ -85,7 +87,7 @@ export const router = createBrowserRouter([
             },
             {
                 path: 'payment-success',
-                element : <PaymentSuccess></PaymentSuccess>
+                element: <PaymentSuccess></PaymentSuccess>
             },
             {
                 path: 'payment-cancelled',

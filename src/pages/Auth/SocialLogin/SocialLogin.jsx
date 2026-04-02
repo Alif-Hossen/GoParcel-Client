@@ -1,30 +1,45 @@
 import React from 'react';
 import useAuth from '../../../hooks/useAuth';
 import { useLocation, useNavigate } from 'react-router';
+import useAxiosSecure from '../../../hooks/useAxiosSecure';
 
 const SocialLogin = () => {
 
     const { signInGoogle } = useAuth();
+    const axiosSecure = useAxiosSecure();
     const location = useLocation();
     const navigate = useNavigate();
-    
+
     // console.log(' Location In Social', location );
 
     const handleGoogleSignIn = () => {
         signInGoogle()
-            .then( result => {
+            .then(result => {
                 console.log(result.user);
-                navigate( location.state || '/' );
+                
+
+                // CREATE USER IN THE DATABASE -->
+                const userInfo = {
+                    email: result.user.email,
+                    displayName: result.user.displayName,
+                    photoURL: result.user.photoURL
+                }
+
+                axiosSecure.post('/users',userInfo)
+                    .then(res => {
+                        console.log('User Data Has Been Stored', res.data);
+                        navigate(location.state || '/');
+                    })
             })
-            .cath( error => {
-                console.log( error )
+            .cath(error => {
+                console.log(error)
             })
     }
 
     return (
         <div className='text-center pb-8'>
             <p className='font-bold pb-2'>OR</p>
-            <button 
+            <button
                 onClick={handleGoogleSignIn}
 
                 className="btn rounded-2xl bg-white text-black border-[#e5e5e5]">
