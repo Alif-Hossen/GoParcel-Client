@@ -4,6 +4,7 @@ import useAuth from '../../../hooks/useAuth';
 import { NavLink, useLocation, useNavigate } from 'react-router';
 import SocialLogin from '../SocialLogin/SocialLogin';
 import axios from 'axios';
+import useAxiosSecure from '../../../hooks/useAxiosSecure';
 
 const Register = () => {
 
@@ -12,11 +13,12 @@ const Register = () => {
 
     const location = useLocation();
     const navigate = useNavigate();
-    console.log( 'Location From Registration', location );
+    const axiosSecure = useAxiosSecure();
+
+
 
     const handleRegistration = (data) => {
 
-        console.log('After Registration : ', data.photo[0]);
         const profileImg = data.photo[0];
 
         registerUser(data.email, data.password)
@@ -33,13 +35,30 @@ const Register = () => {
 
                 axios.post(image_API_URL, formData)
                     .then(res => {
-                        console.log(" After Image Upload", res.data.data.url);
+                        const photoURL =  res.data.data.url ;
+
+
+                        // CREATE USER IN THE DATABASE -->
+
+                        const userInfo = {
+                            email: data.email,
+                            displayName: data.name,
+                            photoURL: photoURL
+                        }
+
+                        axiosSecure.post('/users', userInfo )
+                            .then( res => {
+                                if(res.data.insertedId) {
+                                    console.log("User Created In The Database..");
+                                }
+                            })
 
                         // Update User Profile To Firebase -->
                         const userProfile = {
                             displayName : data.name,
-                            photoURL : res.data.data.url,
+                            photoURL : photoURL
                         }
+
                         updateUserProfile( userProfile )
                             .then( () => {
                                 console.log('user Profile Updated Done!');
