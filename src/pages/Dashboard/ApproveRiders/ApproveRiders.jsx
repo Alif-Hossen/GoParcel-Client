@@ -1,7 +1,7 @@
-import { useQueries, useQuery } from '@tanstack/react-query';
+import {  useQuery } from '@tanstack/react-query';
 import React from 'react';
 import useAxiosSecure from '../../../hooks/useAxiosSecure';
-import { FaTrashCan, FaUserCheck } from 'react-icons/fa6';
+import { FaEye, FaTrashCan, FaUserCheck } from 'react-icons/fa6';
 import { IoPersonRemoveSharp } from 'react-icons/io5';
 import Swal from 'sweetalert2';
 
@@ -81,6 +81,11 @@ const ApproveRiders = () => {
                                             </p>
                                         </td>
                                         <td>
+                                            <button
+                                                className='btn '>
+                                                <FaEye></FaEye>
+
+                                            </button>
                                             <button
                                                 onClick={() => handleApproval(rider)} className='btn '>
                                                 <FaUserCheck />
