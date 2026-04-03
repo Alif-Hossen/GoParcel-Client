@@ -1,11 +1,14 @@
 import { useQuery } from '@tanstack/react-query';
 import React from 'react';
 import useAxiosSecure from '../../../hooks/useAxiosSecure';
+import { FaUserShield } from 'react-icons/fa6';
+import { FiShieldOff } from 'react-icons/fi';
+import Swal from 'sweetalert2';
 
 const UsersManagement = () => {
     const axiosSecure = useAxiosSecure();
 
-    const { data: users = [] } = useQuery({
+    const { refetch, data: users = [] } = useQuery({
         queryKey: ['users'],
         queryFn: async () => {
             const res = await axiosSecure.get(`/users`);
@@ -13,6 +16,44 @@ const UsersManagement = () => {
         }
 
     })
+
+
+    const handleMakeUser = user => {
+        const roleInfo = { role: 'admin' }
+        axiosSecure.patch(`/users/${user._id}`, roleInfo)
+            .then(res => {
+                console.log(res.data);
+                if (res.data.modifiedCount) {
+                    refetch();
+                    Swal.fire({
+                        position: "top-end",
+                        icon: "success",
+                        title: `${user.displayName} Marked As Admin`,
+                        showConfirmButton: false,
+                        timer: 2500
+
+                    });
+                }
+            })
+    }
+
+
+    const handleRemoveAdmin = user => {
+        const roleInfo = { role: 'user' }
+        axiosSecure.patch(`/users/${user._id}`, roleInfo)
+            .then(res => {
+                if (res.data.modifiedCount) {
+                    refetch();
+                    Swal.fire({
+                        position: "top-end",
+                        icon: "success",
+                        title: `${user.displayName} Removed From Admin`,
+                        showConfirmButton: false,
+                        timer: 2500
+                    })
+                }
+            })
+    }
 
 
     return (
@@ -27,18 +68,19 @@ const UsersManagement = () => {
                             <th>
                                 #
                             </th>
+                            <th>User</th>
                             <th>Email</th>
-                            <th>Job</th>
-                            <th>Favorite Color</th>
-                            <th></th>
+                            <th>Role</th>
+                            <th>Admin Action</th>
+                            <th>Others</th>
                         </tr>
                     </thead>
                     <tbody>
                         {
-                            users.map(( user, index ) => <tr>
+                            users.map((user, index) => <tr>
                                 <td>
                                     {
-                                        index+1
+                                        index + 1
                                     }
                                 </td>
                                 <td>
@@ -57,9 +99,29 @@ const UsersManagement = () => {
                                     </div>
                                 </td>
                                 <td>
-                                    { user.email }
+                                    {user.email}
                                 </td>
-                                <td>Admin</td>
+                                <td>
+                                    {user.role}
+                                </td>
+                                <td>
+                                    {
+                                        user.role === 'admin' ?
+                                            <button
+                                                onClick={() => handleRemoveAdmin(user)}
+                                                className='btn bg-red-400'>
+                                                <FiShieldOff />
+                                            </button>
+                                            :
+                                            <button
+                                                onClick={() => handleMakeUser(user)}
+                                                className='btn bg-green-400'>
+                                                <FaUserShield />
+                                            </button>
+                                    }
+
+
+                                </td>
                                 <th>
                                     Actions
                                 </th>
