@@ -20,6 +20,9 @@ const UsersManagement = () => {
 
     const handleMakeUser = user => {
         const roleInfo = { role: 'admin' }
+
+        // MUST ASK FOR CONFIRMATION BEFORE PROCEED --> 
+
         axiosSecure.patch(`/users/${user._id}`, roleInfo)
             .then(res => {
                 console.log(res.data);
@@ -40,6 +43,10 @@ const UsersManagement = () => {
 
     const handleRemoveAdmin = user => {
         const roleInfo = { role: 'user' }
+
+        // MUST ASK FOR CONFIRMATION BEFORE PROCEED --> 
+
+
         axiosSecure.patch(`/users/${user._id}`, roleInfo)
             .then(res => {
                 if (res.data.modifiedCount) {
