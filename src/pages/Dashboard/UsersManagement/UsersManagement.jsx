@@ -18,12 +18,12 @@ const UsersManagement = () => {
     })
 
 
-    const handleMakeUser = user => {
+    const handleMakeAdmin = user => {
         const roleInfo = { role: 'admin' }
 
         // MUST ASK FOR CONFIRMATION BEFORE PROCEED --> 
 
-        axiosSecure.patch(`/users/${user._id}`, roleInfo)
+        axiosSecure.patch(`/users/${user._id}/role`, roleInfo)
             .then(res => {
                 console.log(res.data);
                 if (res.data.modifiedCount) {
@@ -47,7 +47,7 @@ const UsersManagement = () => {
         // MUST ASK FOR CONFIRMATION BEFORE PROCEED --> 
 
 
-        axiosSecure.patch(`/users/${user._id}`, roleInfo)
+        axiosSecure.patch(`/users/${user._id}/role`, roleInfo)
             .then(res => {
                 if (res.data.modifiedCount) {
                     refetch();
@@ -121,7 +121,7 @@ const UsersManagement = () => {
                                             </button>
                                             :
                                             <button
-                                                onClick={() => handleMakeUser(user)}
+                                                onClick={() => handleMakeAdmin(user)}
                                                 className='btn bg-green-400'>
                                                 <FaUserShield />
                                             </button>
