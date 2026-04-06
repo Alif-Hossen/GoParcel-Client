@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import React, { useRef, useState } from 'react';
 import useAxiosSecure from '../../../hooks/useAxiosSecure';
+import Swal from 'sweetalert2';
 
 const AssignRiders = () => {
 
@@ -9,7 +10,7 @@ const AssignRiders = () => {
     const riderModalRef = useRef();
 
 
-    const { data: parcels = [] } = useQuery({
+    const { data: parcels = [], refetch: parcelsRefetch } = useQuery({
         queryKey: ['parcels', 'pending-pickup'],
         queryFn: async () => {
             const res = await axiosSecure.get('/parcels?deliveryStatus=pending-pickup ')
@@ -42,7 +43,21 @@ const AssignRiders = () => {
             riderName: rider.name,
             parcelId: selectedParcel._id,
         }
-        axiosSecure.patch(``, riderAssignInfo)
+        axiosSecure.patch(`/parcels/${selectedParcel._id}`, riderAssignInfo)
+            .then(res => {
+                if (res.data.modifiedCount) {
+                    riderModalRef.current.close();
+                    parcelsRefetch();
+                    Swal.fire({
+                        position: "top-end",
+                        icon: "success",
+                        title: `Rider Has Been Assign.`,
+                        showConfirmButton: false,
+                        timer: 2500
+
+                    });
+                }
+            })
 
     }
 
@@ -77,7 +92,7 @@ const AssignRiders = () => {
                                     <button
                                         onClick={() => openAssignRiderModal(parcel)}
                                         className='btn btn-primary text-black'>
-                                        Assign Rider
+                                        Find Riders
                                     </button>
                                 </td>
                             </tr>)
@@ -105,14 +120,14 @@ const AssignRiders = () => {
                             </thead>
                             <tbody>
                                 {
-                                    riders.map( (rider, i)=> <tr key={rider._id}>
-                                        <th>{i+1}</th>
+                                    riders.map((rider, i) => <tr key={rider._id}>
+                                        <th>{i + 1}</th>
                                         <td>{rider.name}</td>
                                         <td>{rider.email}</td>
                                         <td>
-                                            <button 
-                                            onClick={() => handleAssignRider(rider)}
-                                            className='btn btn-primary text-black'>Assign</button>
+                                            <button
+                                                onClick={() => handleAssignRider(rider)}
+                                                className='btn btn-primary text-black'>Assign</button>
                                         </td>
                                     </tr>)
                                 }
