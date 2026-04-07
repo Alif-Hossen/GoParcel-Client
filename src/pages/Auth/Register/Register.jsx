@@ -1,19 +1,10 @@
-<<<<<<< HEAD
 import React from "react";
 import { useForm } from "react-hook-form";
 import useAuth from "../../../hooks/useAuth";
 import { NavLink, useLocation, useNavigate } from "react-router";
 import SocialLogin from "../SocialLogin/SocialLogin";
 import axios from "axios";
-=======
-import React from 'react';
-import { useForm } from 'react-hook-form';
-import useAuth from '../../../hooks/useAuth';
-import { NavLink, useLocation, useNavigate } from 'react-router';
-import SocialLogin from '../SocialLogin/SocialLogin';
-import axios from 'axios';
-import useAxiosSecure from '../../../hooks/useAxiosSecure';
->>>>>>> other/main
+import useAxiosSecure from "../../../hooks/useAxiosSecure";
 
 const Register = () => {
   const {
@@ -22,162 +13,109 @@ const Register = () => {
     formState: { errors },
   } = useForm();
   const { registerUser, updateUserProfile } = useAuth();
-
+  const axiosSecure = useAxiosSecure();
   const location = useLocation();
   const navigate = useNavigate();
-  console.log("Location From Registration", location);
 
-<<<<<<< HEAD
   const handleRegistration = (data) => {
-    console.log("After Registration : ", data.photo[0]);
     const profileImg = data.photo[0];
-=======
-    const location = useLocation();
-    const navigate = useNavigate();
-    const axiosSecure = useAxiosSecure();
+    const image_API_URL = `https://api.imgbb.com/1/upload?key=${import.meta.env.VITE_image_host_key}`;
 
-
->>>>>>> other/main
-
+    // ১. Firebase-এ ইউজার ক্রিয়েট করা
     registerUser(data.email, data.password)
       .then((result) => {
-        console.log(result.user);
+        console.log("Firebase User Created:", result.user);
 
-<<<<<<< HEAD
-        // Store The Image And Get The Data -->
+        // ২. ImgBB-তে ইমেজ আপলোড করা
         const formData = new FormData();
         formData.append("image", profileImg);
-=======
-        const profileImg = data.photo[0];
->>>>>>> other/main
 
-        // Send The Photo And Get The URL -->
-        const image_API_URL = `https://api.imgbb.com/1/upload?key=${import.meta.env.VITE_image_host_key}`;
+        axios
+          .post(image_API_URL, formData)
+          .then((res) => {
+            const photoURL = res.data.data.url;
 
-<<<<<<< HEAD
-        axios.post(image_API_URL, formData).then((res) => {
-          console.log(" After Image Upload", res.data.data.url);
-=======
-                // Store The Image And Get The Data -->
-                const formData = new FormData();
-                formData.append('image', profileImg);
+            // ৩. ডাটাবেসে ইউজার ইনফো সেভ করা (axiosSecure ব্যবহার করে)
+            const userInfo = {
+              name: data.name,
+              email: data.email,
+              photoURL: photoURL,
+              role: "user", // Default role
+            };
 
-                // Send The Photo And Get The URL -->
-                const image_API_URL = `https://api.imgbb.com/1/upload?key=${import.meta.env.VITE_image_host_key}`
+            axiosSecure.post("/users", userInfo).then((res) => {
+              if (res.data.insertedId) {
+                console.log("User added to database");
+              }
+            });
 
+            // ৪. Firebase প্রোফাইল আপডেট করা (Display Name & Photo)
+            const userProfile = {
+              displayName: data.name,
+              photoURL: photoURL,
+            };
 
-                axios.post(image_API_URL, formData)
-                    .then(res => {
-                        const photoURL =  res.data.data.url ;
-
-
-                        // CREATE USER IN THE DATABASE -->
-                        const userInfo = {
-                            email: data.email,
-                            displayName: data.name,
-                            photoURL: photoURL
-                        }
-
-                        axiosSecure.post('/users', userInfo )
-                            .then( res => {
-                                if(res.data.insertedId) {
-                                    console.log("User Created In The Database..");
-                                }
-                            })
-
-
-                        // Update User Profile To Firebase -->
-                        const userProfile = {
-                            displayName : data.name,
-                            photoURL : photoURL
-                        }
-
-                        updateUserProfile( userProfile )
-                            .then( () => {
-                                console.log('user Profile Updated Done!');
-                                navigate( location.state || '/' );
-                            })
-                            .catch ( error => 
-                                console.log(error)
-                            )
-                    })
->>>>>>> other/main
-
-          // Update User Profile To Firebase -->
-          const userProfile = {
-            displayName: data.name,
-            photoURL: res.data.data.url,
-          };
-          // Register.jsx এর ভেতর আপডেট করুন
-          updateUserProfile(userProfile)
-            .then(() => {
-              console.log("user Profile Updated Done!");
-              // যদি state এ নির্দিষ্ট কোনো পাথ থাকে তবে সেখানে যাবে, নাহলে হোমে
-              const destination =
-                location.state?.from?.pathname || location.state || "/";
-              navigate(destination, { replace: true });
-            })
-            .catch((error) => console.log(error));
-        });
+            updateUserProfile(userProfile)
+              .then(() => {
+                console.log("User Profile Updated Done!");
+                const destination =
+                  location.state?.from?.pathname || location.state || "/";
+                navigate(destination, { replace: true });
+              })
+              .catch((error) => console.log("Profile Update Error:", error));
+          })
+          .catch((error) => console.log("Image Upload Error:", error));
       })
       .catch((error) => {
-        console.log(error);
+        console.log("Registration Error:", error);
       });
   };
 
   return (
-    <div className="card bg-base-100 w-full mx-auto max-w-sm shrink-0 shadow-2xl">
-      <h3 className="text-3xl text-center font-bold">Welcome To Go Parcel</h3>
+    <div className="card bg-base-100 w-full mx-auto max-w-sm shrink-0 shadow-2xl my-10">
+      <h3 className="text-3xl text-center font-bold mt-4">
+        Welcome To Go Parcel
+      </h3>
       <p className="text-center">Please Register</p>
 
       <form className="card-body" onSubmit={handleSubmit(handleRegistration)}>
         <fieldset className="fieldset">
-          {/* NAME FIELD  */}
+          {/* NAME FIELD */}
           <label className="label">Name</label>
           <input
             type="text"
-            {...register("name", {
-              required: true,
-            })}
+            {...register("name", { required: true })}
             className="input"
             placeholder="Your Name"
           />
-
-          {errors.name?.type === "required" && (
-            <p className="text-red-500"> Name Is Required. </p>
+          {errors.name && (
+            <p className="text-red-500 text-xs">Name is required.</p>
           )}
-          {/* PHOTO FIELD  */}
-          <label className="label">Photo</label>
 
+          {/* PHOTO FIELD */}
+          <label className="label">Photo</label>
           <input
             type="file"
-            {...register("photo", {
-              required: true,
-            })}
-            className="file-input"
-            placeholder="Your Photo"
+            {...register("photo", { required: true })}
+            className="file-input file-input-bordered w-full"
           />
-
-          {errors.name?.type === "required" && (
-            <p className="text-red-500"> Photo Is Required. </p>
+          {errors.photo && (
+            <p className="text-red-500 text-xs">Photo is required.</p>
           )}
 
-          {/* EMAIL FIELD  */}
+          {/* EMAIL FIELD */}
           <label className="label">Email</label>
           <input
             type="email"
-            {...register("email", {
-              required: true,
-            })}
+            {...register("email", { required: true })}
             className="input"
             placeholder="Email"
           />
-
-          {errors.email?.type === "required" && (
-            <p className="text-red-500"> Email Is Required. </p>
+          {errors.email && (
+            <p className="text-red-500 text-xs">Email is required.</p>
           )}
 
-          {/* PASSWORD FIELD...... */}
+          {/* PASSWORD FIELD */}
           <label className="label">Password</label>
           <input
             type="password"
@@ -189,34 +127,24 @@ const Register = () => {
             className="input"
             placeholder="Password"
           />
-
           {errors.password?.type === "required" && (
-            <p className="text-red-500"> Password Required To Register. </p>
+            <p className="text-red-500 text-xs">Password is required.</p>
           )}
-
           {errors.password?.type === "minLength" && (
-            <p className="text-red-500">
-              {" "}
-              Password Must Be 6 Character Or Longer.{" "}
+            <p className="text-red-500 text-xs">
+              Must be at least 6 characters.
             </p>
           )}
           {errors.password?.type === "pattern" && (
-            <p className="text-red-500">
-              {" "}
-              Password Must Have At Least One Uppercase, At Least One Lowercase,
-              At Least One Number, And At Least One Special Characters
+            <p className="text-red-500 text-xs">
+              Must have Uppercase, Lowercase, Number & Special Character.
             </p>
           )}
-
-          {/* <div>
-                        <a className="link link-hover">Forgot password?</a>
-                    </div> */}
 
           <button className="btn btn-neutral mt-4">Register</button>
         </fieldset>
 
-        <p>
-          {" "}
+        <p className="text-center mt-2">
           Already Have An Account?{" "}
           <NavLink
             state={location.state}
@@ -224,10 +152,13 @@ const Register = () => {
             className="text-blue-500 font-bold underline"
           >
             Login
-          </NavLink>{" "}
+          </NavLink>
         </p>
       </form>
-      <SocialLogin></SocialLogin>
+      <div className="divider px-8">OR</div>
+      <div className="pb-6">
+        <SocialLogin />
+      </div>
     </div>
   );
 };

@@ -21,21 +21,21 @@ import PaymentCancelled from "../pages/Dashboard/Payment/PaymentCancelled";
 import PaymentHistory from "../pages/Dashboard/PaymentHistory/PaymentHistory";
 import ApproveRiders from "../pages/Dashboard/ApproveRiders/ApproveRiders";
 import UsersManagement from "../pages/Dashboard/UsersManagement/UsersManagement";
-import AdminRoute from "./AdminRoute";
 import AssignRiders from "../pages/Dashboard/AssignRiders/AssignRiders";
-import RiderRoute from "./RiderRoute";
 import AssignDeliveries from "../pages/Dashboard/AssignDeliveries/AssignDeliveries";
 
-// Admin & Rider Pages (নতুন যোগ করা হয়েছে)
+// Admin & Rider Pages
 import AdminHome from "../pages/Admin/AdminHome";
 import AllUsers from "../pages/Admin/AllUsers";
 import AllParcels from "../pages/Admin/AllParcels";
 import MyDeliveries from "../pages/Rider/MyDeliveries";
 import MyReviews from "../pages/Rider/MyReviews";
+
+// Route Protectors
 import AdminRoute from "./AdminRoute";
+import RiderRoute from "./RiderRoute";
 
 export const router = createBrowserRouter([
-<<<<<<< HEAD
   {
     path: "/",
     element: <RootLayout />,
@@ -55,7 +55,7 @@ export const router = createBrowserRouter([
         element: <AboutUs />,
       },
       {
-        path: "be_a_rider", // ইউআরএল কনফ্লিক্ট এড়াতে নাম পরিবর্তন করা হয়েছে
+        path: "be_a_rider",
         element: <BeARider />,
       },
       {
@@ -63,6 +63,15 @@ export const router = createBrowserRouter([
         element: (
           <PrivateRoute>
             <SendParcel />
+          </PrivateRoute>
+        ),
+        loader: () => fetch("/serviceCenter.json").then((res) => res.json()),
+      },
+      {
+        path: "rider",
+        element: (
+          <PrivateRoute>
+            <Rider />
           </PrivateRoute>
         ),
         loader: () => fetch("/serviceCenter.json").then((res) => res.json()),
@@ -91,7 +100,7 @@ export const router = createBrowserRouter([
       </PrivateRoute>
     ),
     children: [
-      // --- User Routes ---
+      // --- Shared/User Routes ---
       {
         path: "my-parcels",
         element: <MyParcels />,
@@ -116,25 +125,11 @@ export const router = createBrowserRouter([
       // --- Admin Only Routes ---
       {
         path: "admin-home",
-        element: <AdminHome />,
-      },
-      {
-        path: "all-users",
-        element: <AllUsers />,
-      },
-      {
-        path: "all-parcels",
-        element: <AllParcels />,
-      },
-
-      // --- Rider Only Routes ---
-      {
-        path: "my-deliveries",
-        element: <MyDeliveries />,
-      },
-      {
-        path: "my-reviews",
-        element: <MyReviews />,
+        element: (
+          <AdminRoute>
+            <AdminHome />
+          </AdminRoute>
+        ),
       },
       {
         path: "all-users",
@@ -152,113 +147,56 @@ export const router = createBrowserRouter([
           </AdminRoute>
         ),
       },
+      {
+        path: "users-management",
+        element: (
+          <AdminRoute>
+            <UsersManagement />
+          </AdminRoute>
+        ),
+      },
+      {
+        path: "approve-riders",
+        element: (
+          <AdminRoute>
+            <ApproveRiders />
+          </AdminRoute>
+        ),
+      },
+      {
+        path: "assign-riders",
+        element: (
+          <AdminRoute>
+            <AssignRiders />
+          </AdminRoute>
+        ),
+      },
+
+      // --- Rider Only Routes ---
+      {
+        path: "assigned-deliveries",
+        element: (
+          <RiderRoute>
+            <AssignDeliveries />
+          </RiderRoute>
+        ),
+      },
+      {
+        path: "my-deliveries",
+        element: (
+          <RiderRoute>
+            <MyDeliveries />
+          </RiderRoute>
+        ),
+      },
+      {
+        path: "my-reviews",
+        element: (
+          <RiderRoute>
+            <MyReviews />
+          </RiderRoute>
+        ),
+      },
     ],
   },
-=======
-    {
-        path: "/",
-        element: <RootLayout></RootLayout>,
-        errorElement: <ErrorPage></ErrorPage>,
-        children: [
-            {
-                index: true,
-                element: <Home></Home>,
-
-            },
-            {
-                path: '/rider',
-                element: <PrivateRoute> <Rider></Rider> </PrivateRoute>,
-                loader: () => fetch('/serviceCenter.json').then(res => res.json())
-
-            },
-            {
-                path: "coverage",
-                element: <Coverage></Coverage>,
-                loader: () => fetch('/serviceCenter.json').then(res => res.json())
-            },
-            {
-                path: "aboutUs",
-                element: <AboutUs></AboutUs>
-            },
-            // {
-            //     path: "rider",
-            //     element: <BeARider></BeARider>
-            // },
-            {
-                path: 'send_parcel',
-                element: <PrivateRoute>  <SendParcel></SendParcel>  </PrivateRoute>,
-                loader: () => fetch('/serviceCenter.json').then(res => res.json())
-            }
-        ]
-    },
-    {
-        path: '/',
-        element: <AuthLayout></AuthLayout>,
-        children: [
-            {
-                path: 'login',
-                element: <Login></Login>
-            },
-            {
-                path: 'register',
-                element: <Register></Register>
-            }
-        ]
-    },
-    {
-        path: 'dashboard',
-        element: <PrivateRoute> <DashboardLayout></DashboardLayout></PrivateRoute>,
-        children: [
-            {
-                path: 'my-parcels',
-                element: <MyParcels></MyParcels>
-            },
-            {
-                path: 'payment/:parcelId',
-                element: <Payment></Payment>
-            },
-            {
-                path: 'payment-history',
-                element: <PaymentHistory></PaymentHistory>
-            },
-            {
-                path: 'payment-success',
-                element: <PaymentSuccess></PaymentSuccess>
-            },
-            {
-                path: 'payment-cancelled',
-                element: <PaymentCancelled></PaymentCancelled>
-            },
-
-            // RIDERS ONLY ROUTES --> 
-            {
-                path: 'assigned-deliveries',
-                element: <RiderRoute>
-                    <AssignDeliveries></AssignDeliveries>
-                </RiderRoute>
-            },
-
-
-            // ADMIN ONLY ROUTES --> 
-            {
-                path: 'approve-riders',
-                element: <AdminRoute>
-                    <ApproveRiders></ApproveRiders>
-                </AdminRoute>
-            },
-            {
-                path: 'assign-riders',
-                element: <AdminRoute>
-                    <AssignRiders></AssignRiders>
-                </AdminRoute>
-            },
-            {
-                path: 'users-management',
-                element: <AdminRoute>
-                    <UsersManagement></UsersManagement>
-                </AdminRoute>
-            }
-        ]
-    }
->>>>>>> other/main
 ]);
