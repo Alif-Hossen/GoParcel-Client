@@ -1,9 +1,19 @@
+<<<<<<< HEAD
 import React from "react";
 import { useForm } from "react-hook-form";
 import useAuth from "../../../hooks/useAuth";
 import { NavLink, useLocation, useNavigate } from "react-router";
 import SocialLogin from "../SocialLogin/SocialLogin";
 import axios from "axios";
+=======
+import React from 'react';
+import { useForm } from 'react-hook-form';
+import useAuth from '../../../hooks/useAuth';
+import { NavLink, useLocation, useNavigate } from 'react-router';
+import SocialLogin from '../SocialLogin/SocialLogin';
+import axios from 'axios';
+import useAxiosSecure from '../../../hooks/useAxiosSecure';
+>>>>>>> other/main
 
 const Register = () => {
   const {
@@ -17,23 +27,81 @@ const Register = () => {
   const navigate = useNavigate();
   console.log("Location From Registration", location);
 
+<<<<<<< HEAD
   const handleRegistration = (data) => {
     console.log("After Registration : ", data.photo[0]);
     const profileImg = data.photo[0];
+=======
+    const location = useLocation();
+    const navigate = useNavigate();
+    const axiosSecure = useAxiosSecure();
+
+
+>>>>>>> other/main
 
     registerUser(data.email, data.password)
       .then((result) => {
         console.log(result.user);
 
+<<<<<<< HEAD
         // Store The Image And Get The Data -->
         const formData = new FormData();
         formData.append("image", profileImg);
+=======
+        const profileImg = data.photo[0];
+>>>>>>> other/main
 
         // Send The Photo And Get The URL -->
         const image_API_URL = `https://api.imgbb.com/1/upload?key=${import.meta.env.VITE_image_host_key}`;
 
+<<<<<<< HEAD
         axios.post(image_API_URL, formData).then((res) => {
           console.log(" After Image Upload", res.data.data.url);
+=======
+                // Store The Image And Get The Data -->
+                const formData = new FormData();
+                formData.append('image', profileImg);
+
+                // Send The Photo And Get The URL -->
+                const image_API_URL = `https://api.imgbb.com/1/upload?key=${import.meta.env.VITE_image_host_key}`
+
+
+                axios.post(image_API_URL, formData)
+                    .then(res => {
+                        const photoURL =  res.data.data.url ;
+
+
+                        // CREATE USER IN THE DATABASE -->
+                        const userInfo = {
+                            email: data.email,
+                            displayName: data.name,
+                            photoURL: photoURL
+                        }
+
+                        axiosSecure.post('/users', userInfo )
+                            .then( res => {
+                                if(res.data.insertedId) {
+                                    console.log("User Created In The Database..");
+                                }
+                            })
+
+
+                        // Update User Profile To Firebase -->
+                        const userProfile = {
+                            displayName : data.name,
+                            photoURL : photoURL
+                        }
+
+                        updateUserProfile( userProfile )
+                            .then( () => {
+                                console.log('user Profile Updated Done!');
+                                navigate( location.state || '/' );
+                            })
+                            .catch ( error => 
+                                console.log(error)
+                            )
+                    })
+>>>>>>> other/main
 
           // Update User Profile To Firebase -->
           const userProfile = {

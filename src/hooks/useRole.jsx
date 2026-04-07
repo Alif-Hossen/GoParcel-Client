@@ -1,21 +1,21 @@
-import { useQuery } from "@tanstack/react-query";
-import useAuth from "./useAuth";
-import axios from "axios";
+import { useQuery } from '@tanstack/react-query';
+import useAuth from './useAuth';
+import useAxiosSecure from './useAxiosSecure';
 
 const useRole = () => {
-  const { user } = useAuth();
-  const { data: userRole, isPending: isRoleLoading } = useQuery({
-    // এখানে userRole নাম দিন
-    queryKey: [user?.email, "userRole"],
-    enabled: !!user?.email,
-    queryFn: async () => {
-      const res = await axios.get(
-        `http://localhost:3000/users/role/${user.email}`,
-      );
-      return res.data?.role;
-    },
-  });
-  return [userRole, isRoleLoading]; // নিশ্চিত করুন এই নাম দুটিই রিটার্ন হচ্ছে
+    const { user, loading } = useAuth();
+    const axiosSecure = useAxiosSecure();
+
+    const { isLoading: isRoleLoading, data: userRole = 'user' } = useQuery({
+        queryKey: ['user-role', user?.email],
+        enabled: !loading && !!user?.email,
+        queryFn: async () => {
+            const res = await axiosSecure.get(`/users/role/${user?.email}`);
+            return res.data?.role || 'user';
+        },
+    });
+
+    return [userRole, isRoleLoading];
 };
 
 export default useRole;

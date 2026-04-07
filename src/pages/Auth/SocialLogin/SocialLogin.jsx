@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import React from "react";
 import useAuth from "../../../hooks/useAuth";
 import { useLocation, useNavigate } from "react-router";
@@ -5,12 +6,19 @@ import { useLocation, useNavigate } from "react-router";
 // অন্যথায় সরাসরি axios ব্যবহার করুন। নিচে আমি সাধারণ axios দিয়ে দেখাচ্ছি।
 import axios from "axios";
 import toast from "react-hot-toast";
+=======
+import React from 'react';
+import useAuth from '../../../hooks/useAuth';
+import { useLocation, useNavigate } from 'react-router';
+import useAxiosSecure from '../../../hooks/useAxiosSecure';
+>>>>>>> other/main
 
 const SocialLogin = () => {
   const { googleSignIn } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
 
+<<<<<<< HEAD
   const from = location.state?.from?.pathname || "/";
 
   const handleGoogleSignIn = () => {
@@ -29,6 +37,44 @@ const SocialLogin = () => {
           .post("http://localhost:3000/users", userInfo)
           .then((res) => {
             console.log("User in DB:", res.data);
+=======
+    const { signInGoogle } = useAuth();
+    const axiosSecure = useAxiosSecure();
+    const location = useLocation();
+    const navigate = useNavigate();
+
+    // console.log(' Location In Social', location );
+
+    const handleGoogleSignIn = () => {
+        signInGoogle()
+            .then(result => {
+                console.log(result.user);
+                
+
+                // CREATE USER IN THE DATABASE -->
+                const userInfo = {
+                    email: result.user.email,
+                    displayName: result.user.displayName,
+                    photoURL: result.user.photoURL
+                }
+
+                axiosSecure.post('/users',userInfo)
+                    .then(res => {
+                        console.log('User Data Has Been Stored', res.data);
+                        navigate(location.state || '/');
+                    })
+            })
+            .cath(error => {
+                console.log(error)
+            })
+    }
+
+    return (
+        <div className='text-center pb-8'>
+            <p className='font-bold pb-2'>OR</p>
+            <button
+                onClick={handleGoogleSignIn}
+>>>>>>> other/main
 
         
             axios

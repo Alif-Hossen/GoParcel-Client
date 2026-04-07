@@ -111,12 +111,33 @@ const MyParcels = () => {
                   )}
                 </td>
 
+<<<<<<< HEAD
                 {/* Delivery Status */}
                 <td>
                   <span className="badge badge-ghost capitalize">
                     {parcel.deliveryStatus || "Pending"}
                   </span>
                 </td>
+=======
+    return (
+        <div>
+            <h2>All Of My Parcels : {parcels.length} </h2>
+            <div className="overflow-x-auto">
+                <table className="table table-zebra">
+                    {/* head */}
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Name</th>
+                            <th>Cost</th>
+                            <th>Payment </th>
+                            <th>Tracking Id </th>
+                            <th>Delivery Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+>>>>>>> other/main
 
                 {/* Payment Column */}
                 <td>
@@ -138,6 +159,7 @@ const MyParcels = () => {
                     <FaMagnifyingGlass title="Details" />
                   </button>
 
+<<<<<<< HEAD
                   {/* পেইড হলে এডিট/ডিলিট করা যাবে না */}
                   {parcel.paymentStatus !== "paid" && (
                     <>
@@ -160,6 +182,35 @@ const MyParcels = () => {
       </div>
     </div>
   );
+=======
+                                    }
+                                </td>
+                                <td>{parcel.trackingId}</td>
+                                <td>{parcel.deliveryStatus}</td>
+                                <td>
+                                    <button className="btn btn-square hover:bg-primary mx-2">
+                                        <FaMagnifyingGlass />
+                                    </button>
+
+                                    <button className="btn btn-square hover:bg-primary">
+                                        <CiEdit />
+                                    </button>
+
+                                    <button
+                                        onClick={() => handleParcelDelete(parcel._id)}
+                                        className="btn btn-square hover:bg-primary">
+                                        <FaRegTrashAlt />
+                                    </button>
+                                </td>
+                            </tr>)
+                        }
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    );
+>>>>>>> other/main
 };
 
 export default MyParcels;
