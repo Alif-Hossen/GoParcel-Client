@@ -57,13 +57,13 @@ const AuthProvider = ({ children }) => {
     loading,
     registerUser,
     signInUser,
-    googleSignIn, // এখানেও নাম আপডেট করা হলো
+    googleSignIn,
     logOut,
     updateUserProfile,
   };
 
   return (
-    // .Provider অবশ্যই যোগ করতে হবে
+   
     <AuthContext.Provider value={authInfo}>{children}</AuthContext.Provider>
   );
 };

@@ -1,8 +1,9 @@
 import { useForm } from "react-hook-form";
 import useAuth from "../../../hooks/useAuth";
-import { NavLink, useLocation, useNavigate, Link } from "react-router";
+import { NavLink, useLocation, useNavigate } from "react-router-dom"; // "react-router-dom" ব্যবহার করা ভালো
 import SocialLogin from "../SocialLogin/SocialLogin";
 import axios from "axios";
+import Swal from "sweetalert2";
 
 const Login = () => {
   const {
@@ -16,105 +17,116 @@ const Login = () => {
   const navigate = useNavigate();
   const from = location.state?.from?.pathname || "/";
 
-  // Login.jsx এর ভেতর
-
   const handleLogin = (data) => {
     signInUser(data.email, data.password)
-      .then((result) => {
+      .then(async (result) => {
         const user = result.user;
 
-        // ১. প্রথমে সার্ভার থেকে JWT টোকেন নিয়ে আসা
+        // ১. লগইন সফল হওয়া মাত্রই ইউজারকে ড্যাশবোর্ডে পাঠিয়ে দিন (Fast UX)
+        Swal.fire({
+          icon: "success",
+          title: "Login Successful",
+          showConfirmButton: false,
+          timer: 1500,
+        });
+        navigate(from, { replace: true });
+
+        // ২. এখন ব্যাকগ্রাউন্ডে বাকি কাজগুলো হবে
         const userInfo = {
           name: user?.displayName || "Anonymous",
           email: user?.email,
-          role: "user", // ডিফল্ট রোল
+          role: "user",
         };
 
-        // ২. টোকেন পাওয়ার জন্য /jwt এপিআই কল করা
-        axios
-          .post("http://localhost:3000/jwt", { email: user?.email })
-          .then((res) => {
-            if (res.data.token) {
-              // **টোকেনটি সেভ করা হচ্ছে**
-              localStorage.setItem("access-token", res.data.token);
-
-              // ৩. টোকেন সেভ হওয়ার পর ইউজারকে ডাটাবেসে সেভ করা (যদি না থাকে)
-              axios
-                .post("http://localhost:3000/users", userInfo)
-                .then((dbRes) => {
-                  console.log("User process complete", dbRes.data);
-
-                  // ৪. সবশেষে ড্যাশবোর্ডে পাঠানো
-                  // এখানে 'from' ভেরিয়েবলটি ব্যবহার করা ভালো
-                  navigate(from, { replace: true });
-                });
-            }
+        try {
+          // টোকেন জেনারেট এবং লোকাল স্টোরেজে সেভ
+          const tokenRes = await axios.post("http://localhost:3000/jwt", {
+            email: user?.email,
           });
+          if (tokenRes.data.token) {
+            localStorage.setItem("access-token", tokenRes.data.token);
+          }
+
+          // ডাটাবেসে ইউজার ইনফো সিঙ্ক করা
+          await axios.post("http://localhost:3000/users", userInfo);
+          console.log("Background processes completed.");
+        } catch (err) {
+          console.error("Background processing error:", err);
+        }
       })
       .catch((error) => {
         console.error("Login Error:", error.message);
-        // এখানে ইউজারকে একটি এরর মেসেজ (যেমন: Swal বা Toast) দেখাতে পারেন
+        Swal.fire({
+          icon: "error",
+          title: "Login Failed",
+          text: "Invalid email or password!",
+        });
       });
   };
 
   return (
-    <div className="card bg-base-100 w-full mx-auto max-w-sm shrink-0 shadow-2xl">
+    <div className="card bg-base-100 w-full mx-auto max-w-sm shrink-0 shadow-2xl p-6">
       <h3 className="text-3xl text-center font-bold">Welcome Back</h3>
-      <p className="text-center">Please Login</p>
+      <p className="text-center text-gray-500">Please Login</p>
 
-      <form className="card-body" onSubmit={handleSubmit(handleLogin)}>
-        <fieldset className="fieldset">
-          {/* EMAIL FIELD */}
-          <label className="label">Email</label>
-
+      <form className="card-body p-0 mt-4" onSubmit={handleSubmit(handleLogin)}>
+        <div className="form-control">
+          <label className="label">
+            <span className="label-text">Email</span>
+          </label>
           <input
             type="email"
             {...register("email", { required: true })}
-            className="input"
+            className="input input-bordered"
             placeholder="Email"
           />
-
-          {errors.email?.type === "required" && (
-            <p className="text-red-500"> Email Is Required </p>
+          {errors.email && (
+            <p className="text-red-500 text-xs mt-1">Email is required</p>
           )}
+        </div>
 
-          {/* PASSWORD FIELD  */}
-          <label className="label">Password</label>
+        <div className="form-control mt-2">
+          <label className="label">
+            <span className="label-text">Password</span>
+          </label>
           <input
             type="password"
-            {...register("password", { required: true, minLength: 6 })}
-            className="input"
+            {...register("password", {
+              required: "Password is required",
+              minLength: { value: 6, message: "Min 6 characters required" },
+            })}
+            className="input input-bordered"
             placeholder="Password"
           />
-
-          {errors.password?.type === "required" && (
-            <p className="text red-500"> Password Is Required To Login </p>
+          {errors.password && (
+            <p className="text-red-500 text-xs mt-1">
+              {errors.password.message}
+            </p>
           )}
+        </div>
 
-          {errors.password?.type === "minlength" && (
-            <p> Password Should At Least 6 Character. </p>
-          )}
+        <div className="mt-2 text-right">
+          <a className="link link-hover text-sm">Forgot password?</a>
+        </div>
 
-          <div>
-            <a className="link link-hover">Forgot password?</a>
-          </div>
-          <button className="btn btn-neutral mt-4">Login</button>
-        </fieldset>
+        <div className="form-control mt-6">
+          <button className="btn btn-neutral w-full">Login</button>
+        </div>
 
-        <p>
-          {" "}
+        <p className="text-center mt-4 text-sm">
           New To Go Parcel?{" "}
           <NavLink
-            state={location.state}
             to="/register"
+            state={{ from }}
             className="text-blue-500 font-bold underline"
           >
-            register
-          </NavLink>{" "}
+            Register
+          </NavLink>
         </p>
       </form>
 
-      <SocialLogin></SocialLogin>
+      <div className="divider">OR</div>
+      <SocialLogin />
     </div>
   );
 };

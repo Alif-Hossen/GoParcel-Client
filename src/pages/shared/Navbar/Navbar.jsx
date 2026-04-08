@@ -13,7 +13,7 @@ import useAxiosSecure from "../../../hooks/useAxiosSecure";
 const socket = io("http://localhost:3000");
 
 const Navbar = () => {
-  const { user, logOut, loading: authLoading } = useAuth();
+  const { user, logOut } = useAuth();
   const [userRole, isRoleLoading] = useRole();
   const axiosSecure = useAxiosSecure();
   const navigate = useNavigate();
@@ -21,7 +21,7 @@ const Navbar = () => {
   // ১. ডাটাবেস থেকে পুরনো নোটিফিকেশন লোড করা
   const { data: dbNotifications = [], refetch } = useQuery({
     queryKey: ["notifications", user?.email],
-    enabled: !!user?.email, // ইউজার ইমেইল থাকলেই কেবল কোয়েরি চলবে
+    enabled: !!user?.email,
     queryFn: async () => {
       const res = await axiosSecure.get(`/notifications/${user?.email}`);
       return res.data;
@@ -36,13 +36,12 @@ const Navbar = () => {
       socket.emit("join", user.email);
 
       const handleNotification = (data) => {
-        // নতুন নোটিফিকেশন আসলে স্টেটে যোগ হবে এবং টোস্ট দেখাবে
         setLiveNotifications((prev) => [data, ...prev]);
         toast.success(data.message, {
           duration: 4000,
           position: "top-center",
         });
-        refetch(); // ডাটাবেস থেকেও নতুন ডাটা সিঙ্ক করে নেবে
+        refetch(); // ডাটাবেস সিঙ্ক
       };
 
       socket.on("notification", handleNotification);
@@ -53,25 +52,15 @@ const Navbar = () => {
     }
   }, [user, refetch]);
 
-<<<<<<< HEAD
-  // ৩. দুই ধরণের নোটিফিকেশন একসাথে মার্জ করা (DB + Live)
+  // ৩. দুই ধরণের নোটিফিকেশন একসাথে মার্জ করা
   const allNotifications = [...liveNotifications, ...dbNotifications];
-=======
-    const links = <>
-        <li><NavLink to="">Services</NavLink></li>
-        <li><NavLink to="/coverage">Coverage</NavLink></li>
-        <li><NavLink to="/send_parcel">Send parcel</NavLink></li>
-        <li><NavLink to="/rider">Be a Rider</NavLink></li>
-        <li><NavLink to="/aboutUs">About Us</NavLink></li>
-        <li><NavLink to="">Pricing</NavLink></li>
->>>>>>> other/main
 
   const handleLogOut = () => {
     logOut()
       .then(() => navigate("/"))
       .catch((error) => console.log(error));
   };
-  console.log("All Notifications:", allNotifications);
+
   const links = (
     <>
       <li>
@@ -83,26 +72,22 @@ const Navbar = () => {
       <li>
         <NavLink to="/aboutUs">About Us</NavLink>
       </li>
+      <li>
+        <NavLink to="/send_parcel">Send parcel</NavLink>
+      </li>
+      <li>
+        <NavLink to="/rider">Be a Rider</NavLink>
+      </li>
+      <li>
+        <NavLink to="/dashboard/my-parcels">My parcel</NavLink>
+      </li>
 
-      {!isRoleLoading && !authLoading && (
+      {/* লোডিং শেষ হওয়ার পর রোল অনুযায়ী কন্টেন্ট */}
+
+      {!isRoleLoading && (
         <>
-          {userRole === "user" && (
-            <>
-              <li>
-                <NavLink to="/send_parcel">Send parcel</NavLink>
-              </li>
-              <li>
-                <NavLink to="/rider">Be a Rider</NavLink>
-              </li>
-              {user && (
-                <li>
-                  <NavLink to="/dashboard/my-parcels">My parcel</NavLink>
-                </li>
-              )}
-            </>
-          )}
-
-          {userRole === "admin" && (
+          {/* Admin Role logic */}
+          {userRole?.toLowerCase() === "admin" && (
             <li>
               <NavLink
                 to="/dashboard/admin-home"
@@ -117,11 +102,10 @@ const Navbar = () => {
     </>
   );
 
-<<<<<<< HEAD
   return (
     <div className="navbar bg-base-100 shadow-sm border-2 mt-4 rounded-2xl px-4 flex justify-between items-center">
-      {/* Mobile Menu */}
-      <div className="navbar-start w-auto">
+      {/* Mobile & Logo Section */}
+      <div className="navbar-start w-auto flex items-center">
         <div className="dropdown">
           <div tabIndex={0} role="button" className="btn btn-ghost lg:hidden">
             <svg
@@ -141,45 +125,12 @@ const Navbar = () => {
           </div>
           <ul
             tabIndex={0}
-            className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[50] mt-3 w-52 p-2 shadow"
+            className="menu menu-sm dropdown-content bg-base-100 rounded-box z-50 mt-3 w-52 p-2 shadow"
           >
             {links}
           </ul>
-=======
-    return (
-        <div className="navbar bg-base-100 shadow-sm border-2 mt-4 rounded-2xl">
-            <div className="navbar-start">
-                <div className="dropdown">
-                    <div tabIndex={0} role="button" className="btn btn-ghost lg:hidden">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"> <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h8m-8 6h16" /> </svg>
-                    </div>
-                    <ul
-                        tabIndex="-1"
-                        className="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow">
-                        {links}
-                    </ul>
-                </div>
-                <span className="btn btn-ghost text-xl">
-                    <Logo></Logo>
-                </span>
-            </div>
-            <div className="navbar-center hidden lg:flex">
-                <ul className="menu menu-horizontal px-1">
-                    {links}
-                </ul>
-            </div>
-            <div className="navbar-end">
-                {
-                    user ? 
-                    <a onClick={handleLogOut} className="btn">Log Out </a> : 
-                    <NavLink to="/login"  className="btn"> Log In </NavLink>
-                }
-
-                <NavLink to="/rider"  className="btn btn-primary text-black mx-4"> Be A Rider </NavLink>
-            </div>
->>>>>>> other/main
         </div>
-        <Link to="/" className="btn btn-ghost text-xl p-0">
+        <Link to="/" className="btn btn-ghost text-xl p-0 ml-2">
           <Logo />
         </Link>
       </div>
@@ -207,7 +158,7 @@ const Navbar = () => {
               </label>
               <ul
                 tabIndex={0}
-                className="menu menu-sm dropdown-content mt-3 z-[1000] p-2 shadow bg-base-100 rounded-box w-64 max-h-80 overflow-y-auto border right-0"
+                className="menu menu-sm dropdown-content mt-3 z-1000 p-2 shadow bg-base-100 rounded-box w-64 max-h-80 overflow-y-auto border right-0"
               >
                 <li className="menu-title font-bold text-gray-700 text-lg">
                   Notifications

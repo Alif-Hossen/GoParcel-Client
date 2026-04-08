@@ -1,49 +1,29 @@
-<<<<<<< HEAD
+import React from "react";
 import { Navigate, useLocation } from "react-router-dom";
-import useAdmin from "../hooks/useAdmin";
 import useAuth from "../hooks/useAuth";
+import useRole from "../hooks/useRole";
 
 const AdminRoute = ({ children }) => {
   const { user, loading } = useAuth();
-  const [isAdmin, isAdminLoading] = useAdmin();
+  const [userRole, isRoleLoading] = useRole();
   const location = useLocation();
 
-  if (loading || isAdminLoading) {
+  // লোডিং অবস্থায় থাকলে স্পিনার বা লোডিং কম্পোনেন্ট দেখাবে
+  if (loading || isRoleLoading) {
     return (
-      <span className="loading loading-dots loading-lg text-primary"></span>
+      <div className="flex justify-center items-center min-h-screen">
+        <span className="loading loading-dots loading-lg text-primary"></span>
+      </div>
     );
   }
 
-  if (user && isAdmin) {
+  // ইউজার যদি লগইন থাকে এবং তার রোল যদি 'admin' হয়
+  if (user && userRole === "admin") {
     return children;
   }
 
+  // অ্যাডমিন না হলে হোম পেজে রিডাইরেক্ট করবে
   return <Navigate to="/" state={{ from: location }} replace></Navigate>;
 };
 
 export default AdminRoute;
-=======
-import React from 'react';
-import useAuth from '../hooks/useAuth';
-import Loading from '../components/Loading/Loading';
-import useRole from '../hooks/useRole';
-import Forbidden from '../components/Forbidden/Forbidden';
-
-const AdminRoute = ({children}) => {
-
-    const {  loading } =useAuth();
-    const { role, roleLoading } = useRole();
-
-    if(loading || roleLoading) {
-        return <Loading></Loading>
-    }
-
-    if(role !== 'admin') {
-        return <Forbidden></Forbidden>
-    }
-
-    return children;
-};
-
-export default AdminRoute;
->>>>>>> other/main

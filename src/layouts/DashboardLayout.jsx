@@ -31,7 +31,7 @@ const DashboardLayout = () => {
 
   return (
     <div className="bg-[#f8fafc] min-h-screen font-sans">
-      <div className="drawer lg:drawer-open max-w-[1600px] mx-auto shadow-sm">
+      <div className="drawer lg:drawer-open max-w-400 mx-auto shadow-sm">
         <input id="my-drawer-4" type="checkbox" className="drawer-toggle" />
 
         <div className="drawer-content flex flex-col">

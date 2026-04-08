@@ -27,12 +27,9 @@ const SendParcel = () => {
   };
 
   const handleSendParcel = (data) => {
-    console.log(data);
     const isSameDistrict = data.senderDistrict === data.receiverDistrict;
-
     const isDocument = data.parcelType === "document";
-    const parcelWeight = parseFloat(data.parcelWeight);
-    // console.log( sameDistrict );
+    const parcelWeight = parseFloat(data.parcelWeight) || 0; // NaN রোধ করতে
 
     let cost = 0;
     if (isDocument) {
@@ -46,13 +43,18 @@ const SendParcel = () => {
         const extraCharge = isSameDistrict
           ? extraWeight * 40
           : extraWeight * 40 + 40;
-
         cost = minCharge + extraCharge;
       }
     }
-
-    console.log("Cost Is : ", cost);
-    data.cost = cost;
+    const parcelInfo = {
+      ...data,
+      parcelWeight,
+      cost,
+      deliveryStatus: "pending",
+      paymentStatus: "unpaid",
+      bookingDate: new Date().toISOString(),
+      trackingId: `PRCL-${Date.now()}`,
+    };
 
     Swal.fire({
       title: "Agree with the cost?",
@@ -61,23 +63,28 @@ const SendParcel = () => {
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
-      confirmButtonText: "Confirm And Continue Payment",
+      confirmButtonText: "Confirm And Continue",
     }).then((result) => {
       if (result.isConfirmed) {
-        // SAVE THE PARCEL INFO TO THE DATABASE -->
-        axiosSecure.post("/parcels", data).then((res) => {
-          console.log("After Saving Parcel: ", res.data);
-          if (res.data.insertedId) {
-            navigate("/dashboard/my-parcels");
-            Swal.fire({
-              position: "top-end",
-              icon: "success",
-              title: "parcel has created. Please pay",
-              showConfirmButton: false,
-              timer: 2500,
-            });
-          }
-        });
+        axiosSecure
+          .post("/parcels", parcelInfo)
+          .then((res) => {
+            console.log("Response: ", res.data);
+            if (res.data.insertedId) {
+              Swal.fire({
+                position: "top-end",
+                icon: "success",
+                title: "Parcel created successfully!",
+                showConfirmButton: false,
+                timer: 2000,
+              });
+              navigate("/dashboard/my-parcels");
+            }
+          })
+          .catch((err) => {
+            console.error("Server Error:", err);
+            Swal.fire("Error", "Server side issue. Check console.", "error");
+          });
       }
     });
   };

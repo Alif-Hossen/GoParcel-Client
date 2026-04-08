@@ -1,98 +1,40 @@
-<<<<<<< HEAD
 import React from "react";
 import useAuth from "../../../hooks/useAuth";
 import { useLocation, useNavigate } from "react-router";
-// আপনি যদি axiosPublic হুক তৈরি করে থাকেন তবে সেটি ইমপোর্ট করুন,
-// অন্যথায় সরাসরি axios ব্যবহার করুন। নিচে আমি সাধারণ axios দিয়ে দেখাচ্ছি।
 import axios from "axios";
 import toast from "react-hot-toast";
-=======
-import React from 'react';
-import useAuth from '../../../hooks/useAuth';
-import { useLocation, useNavigate } from 'react-router';
-import useAxiosSecure from '../../../hooks/useAxiosSecure';
->>>>>>> other/main
 
 const SocialLogin = () => {
-  const { googleSignIn } = useAuth();
+  const { signInGoogle } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
 
-<<<<<<< HEAD
   const from = location.state?.from?.pathname || "/";
 
   const handleGoogleSignIn = () => {
-    googleSignIn()
+    signInGoogle()
       .then((result) => {
         const user = result.user;
+
         const userInfo = {
           email: user?.email,
-          name: user?.displayName,
-          role: "user",
+          displayName: user?.displayName,
           image: user?.photoURL,
+          role: "user", // ডিফল্ট রোল
         };
 
-      
         axios
           .post("http://localhost:3000/users", userInfo)
           .then((res) => {
-            console.log("User in DB:", res.data);
-=======
-    const { signInGoogle } = useAuth();
-    const axiosSecure = useAxiosSecure();
-    const location = useLocation();
-    const navigate = useNavigate();
+            console.log("User in DB Sync:", res.data);
 
-    // console.log(' Location In Social', location );
-
-    const handleGoogleSignIn = () => {
-        signInGoogle()
-            .then(result => {
-                console.log(result.user);
-                
-
-                // CREATE USER IN THE DATABASE -->
-                const userInfo = {
-                    email: result.user.email,
-                    displayName: result.user.displayName,
-                    photoURL: result.user.photoURL
-                }
-
-                axiosSecure.post('/users',userInfo)
-                    .then(res => {
-                        console.log('User Data Has Been Stored', res.data);
-                        navigate(location.state || '/');
-                    })
-            })
-            .cath(error => {
-                console.log(error)
-            })
-    }
-
-    return (
-        <div className='text-center pb-8'>
-            <p className='font-bold pb-2'>OR</p>
-            <button
-                onClick={handleGoogleSignIn}
->>>>>>> other/main
-
-        
-            axios
-              .post("http://localhost:3000/jwt", { email: user?.email })
-              .then((res) => {
-                if (res.data.token) {
-             
-                  localStorage.setItem("access-token", res.data.token);
-
-                  toast.success("Google Login Successful!");
-                  
-                  navigate(from, { replace: true });
-                }
-              });
+            toast.success("Google Login Successful!");
+            navigate(from, { replace: true });
           })
           .catch((err) => {
-            console.error("Auth Error:", err);
-            toast.error("Failed to sync with database");
+            console.error("DB Sync Error:", err);
+            toast.success("Welcome Back!");
+            navigate(from, { replace: true });
           });
       })
       .catch((error) => {
@@ -107,12 +49,12 @@ const SocialLogin = () => {
       <button
         onClick={handleGoogleSignIn}
         type="button"
-        className="btn rounded-2xl bg-white text-black border-[#e5e5e5] hover:bg-gray-100 transition-all flex items-center justify-center gap-2 mx-auto"
+        className="btn rounded-2xl bg-white text-black border-[#e5e5e5] hover:bg-gray-100 transition-all flex items-center justify-center gap-2 mx-auto px-6 py-2"
       >
         <svg
           aria-label="Google logo"
-          width="16"
-          height="16"
+          width="20"
+          height="20"
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 512 512"
         >
