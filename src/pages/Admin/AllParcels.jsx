@@ -19,7 +19,7 @@ const AllParcels = () => {
       userEmail: parcel.senderEmail,
       parcelName: parcel.parcelName,
     };
-
+// test
     axiosSecure
       .patch(`/parcels/update-date/${parcel._id}`, updateData)
       .then((res) => {
