@@ -22,7 +22,8 @@ const AssignDeliveries = () => {
     const handleDeliveryStatusUpdate = (parcel, status) => {
         const statusInfo = { 
             deliveryStatus: status,
-            riderId: parcel.riderId
+            riderId: parcel.riderId,
+            trackingId: parcel.trackingId
         }
 
         let   message = `Parcel Status Is Update With ${status.split('_').join(' ')}`
