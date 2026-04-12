@@ -10,24 +10,23 @@ const Navbar = () => {
     const handleLogOut = () => {
         logOut()
             .then()
-            .catch( error => {
-                console.log( error );
+            .catch(error => {
+                console.log(error);
             })
     }
 
     const links = <>
         <li><NavLink to="">Services</NavLink></li>
-        <li><NavLink to="/coverage">Coverage</NavLink></li>
         <li><NavLink to="/send_parcel">Send parcel</NavLink></li>
         <li><NavLink to="/rider">Be a Rider</NavLink></li>
-        <li><NavLink to="/aboutUs">About Us</NavLink></li>
-        <li><NavLink to="">Pricing</NavLink></li>
-
+        <li><NavLink to="/coverage">Coverage Areas</NavLink></li>
         {
-            user && <> 
+            user && <>
                 <li><NavLink to="/dashboard/my-parcels">My parcel</NavLink></li>
+                <li><NavLink to="/dashboard">Dashboard</NavLink></li>
             </>
         }
+        <li><NavLink to="/aboutUs">About Us</NavLink></li>
     </>
 
     return (
@@ -54,12 +53,12 @@ const Navbar = () => {
             </div>
             <div className="navbar-end">
                 {
-                    user ? 
-                    <a onClick={handleLogOut} className="btn">Log Out </a> : 
-                    <NavLink to="/login"  className="btn"> Log In </NavLink>
+                    user ?
+                        <a onClick={handleLogOut} className="btn">Log Out </a> :
+                        <NavLink to="/login" className="btn"> Log In </NavLink>
                 }
 
-                <NavLink to="/rider"  className="btn btn-primary text-black mx-4"> Be A Rider </NavLink>
+                <NavLink to="/rider" className="btn btn-primary text-black mx-4"> Be A Rider </NavLink>
             </div>
         </div>
     );
